@@ -1,0 +1,71 @@
+name: 'Pull request reminder for Zulip'
+description: 'Creates a reminder for all missing reviews of open pull requests and sends them in a Zulip Channel via a bot'
+
+inputs:
+  git-token:
+    description: 'The Github token of the repository, whose prs should be monitored. Transmit as Github secret'
+    required: true
+  mapping:
+    description: 'Githubname: Zulipname mappings in JSON format. E.g. {"gitname 1": "@**zulipname 1**", "gitname 2": "@**zulipname 2**"}'
+    required: true
+  bot-api-key:
+    description: 'API key of the bot, that should send the message. Transmit as Github secret'
+    required: true
+  bot-email:
+    description: 'Email adress of the bot, that should send the message'
+    required: true
+  organization-url:
+    description: 'URL of the Zulip organization'
+    required: true
+  channel:
+    description: 'Channel that should receive the reminders'
+    required: false
+    default: 'pr-reminders'
+  topic:
+    description: 'Topic of the channel that should receive the reminders'
+    required: false
+    default: 'channel events'
+  
+runs:
+  using: composite
+  steps:
+    - name: Checkout repo
+      uses: actions/checkout@v2
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        pip install PyGithub
+        pip install pytz
+      shell: bash
+
+    - name: Fetch open reviews 
+      id: check-reviews
+      run: |
+        EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64) 
+        python ${{ github.action_path }}/fetch-open-reviews.py
+        echo "message<<$EOF" >> $GITHUB_OUTPUT
+        echo "$(cat /home/runner/work/_temp/message.txt)" >> $GITHUB_OUTPUT
+        echo "$EOF" >> $GITHUB_OUTPUT
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.git-token }}
+        MAP: ${{ inputs.mapping }}
+      
+    - name: Send reminder to Zulip
+      uses: zulip/github-actions-zulip/send-message@v1
+      with:
+        api-key: ${{ inputs.bot-api-key }}
+        email: ${{ inputs.bot-email }}
+        organization-url: ${{ inputs.organization-url }}
+        to: ${{ inputs.channel }}
+        type: "stream"
+        topic: ${{inputs.topic }}
+        content: ${{ steps.check-reviews.outputs.message }}
+
+    
+
