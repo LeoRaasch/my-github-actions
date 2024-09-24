@@ -2,6 +2,9 @@ name: 'Pull request reminder for Zulip'
 description: 'Creates a reminder for all missing reviews of open pull requests and sends them in a Zulip Channel via a bot'
 
 inputs:
+  git-name:
+    description: 'The full path to the github repository, e.g. <username/repositoryname>'
+    required: true
   git-token:
     description: 'The Github token of the repository, whose prs should be monitored. Transmit as Github secret'
     required: true
@@ -55,6 +58,7 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.git-token }}
         MAP: ${{ inputs.mapping }}
+        REPO: ${{ inputs.git-name }}
       
     - name: Send reminder to Zulip
       uses: zulip/github-actions-zulip/send-message@v1

@@ -9,7 +9,7 @@ git_to_zulip = json.loads(os.getenv('MAP'))
 
 # Set up conncetion to git repository
 git = Github(os.getenv('GITHUB_TOKEN'))
-repo = git.get_repo('LeoRaasch/pr_reminder_test')
+repo = git.get_repo(os.getenv('REPO'))
 
 # Fetch open pull requests
 pulls = repo.get_pulls(state='open', sort='created')
