@@ -6,6 +6,7 @@ Fetches open pull requests aswell as the missing reviews and sends a pull reques
 
 | Name            | Required   | Description                                                                                                                  |
 |-----------------|------------|------------------------------------------------------------------------------------------------------------------------------|
+| git-name        | Yes        | The organization/owner and the name of the repository as one string, like "ownername/repositoryname"                         |
 | git-token       | Yes        | The Github token of the repository, whose prs should be monitored. Transmit as Github secret.                                |
 | mapping         | Yes        | Githubname: Zulipname mappings in JSON format. E.g. {"gitname 1": "@\*\*zulipname 1**", "gitname 2": "@\*\*zulipname 2\*\*"}.|
 | bot-api-key     | Yes        | API key of the bot, that should send the message. Transmit as Github secret.                                                 |
