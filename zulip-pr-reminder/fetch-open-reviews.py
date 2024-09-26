@@ -19,11 +19,7 @@ message = ""
 for pr in pulls:
     requested_reviewers = pr.get_review_requests()[0]
     requested_reviewers_name = [reviewer.login for reviewer in requested_reviewers]
-    reviews = pr.get_reviews()
-    reviewers_name = [review.user.login for review in reviews]
-
-    open_reviewers = [reviewer for reviewer in requested_reviewers_name if reviewer not in reviewers_name]
-    open_reviewers_zulip = [git_to_zulip.get(user, f"{user}") for user in open_reviewers]
+    open_reviewers_zulip = [git_to_zulip.get(user, f"{user}") for user in requested_reviewers_name]
     open_reviewers_joined = ", ".join(open_reviewers_zulip)
 
     daysAgo = (datetime.now(pytz.utc) - pr.created_at).days
